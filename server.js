@@ -15,7 +15,7 @@ mongoose.connect(process.env.MONGO_URI, { useNewUrlParser: true, useUnifiedTopol
 //create exerciseSchema
 const { Schema } = mongoose;
 
-const exerciseSchema = new Schema ({
+const exerciseSchema = new Schema({
   description: String,
   duration: Number,
   date: String
@@ -69,27 +69,16 @@ app.get('/api/users', (req, res) => {
 // The response returned will be the user object with the exercise fields added.
 
 app.post('/api/users/:_id/exercises', (req, res) => {
+  var day; 
+  req.body.date === "" ? day = new Date().toISOString().substring(0,10) : day = req.body.date
+  let newSession = new Session({
+    "description": req.body.description, 
+    'duration': parseFloat(req.body.duration),
+    'date': day
+  })
 
-
-  Person.findOneAndUpdate({_id: req.params._id}, {
-    // date: req.body.date,
-    duration: req.body.duration,
-    description: req.body.description
-  }, {new: true}, function (err, docs) {
-    if (err) {
-      console.log(err)
-    }
-    else {
-      console.log( docs);
-    }
-  }
-  )
-
-  Person.findById(req.params._id, function (err, person) {
-    res.json({
-      '_id': req.params._id, 'username': person.username, 'date': req.body.date,
-      'duration': parseFloat(req.body.duration), "description": req.body.description
-    })
+  Person.findByIdAndUpdate(req.params._id, {$push : {log : newSession}}, {new : true}, function (err, person) {
+    res.json({person})
   });
 });
 
@@ -99,17 +88,17 @@ app.post('/api/users/:_id/exercises', (req, res) => {
 // duration, and date properties
 app.get('/api/users/:_id/logs', (req, res) => {
   Person.findById(req.params._id, (err, docs) => {
-    console.log("Result : ", docs);
-    res.json(docs);
+    console.log("Result : ", docs.log);
+    res.json(docs.log);
   })
 
 });
 //Remove
 
 app.get('/api/users/:_id/86', (req, res) => {
-   Person.findByIdAndRemove(req.params._id, req.body, (err,data)=> {
-     !err ? console.log("Deleted!") : console.log(err);
-   })
+  Person.findByIdAndRemove(req.params._id, req.body, (err, data) => {
+    !err ? console.log("Deleted!") : console.log(err);
+  })
 });
 
 const listener = app.listen(process.env.PORT || 3000, () => {
