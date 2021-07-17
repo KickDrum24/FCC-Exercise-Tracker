@@ -48,7 +48,7 @@ app.get('/', (req, res) => {
 app.post('/api/users', (req, res) => {
   const newPerson = new Person({ username: req.body.username });
   newPerson.save((err, data) => {
-    res.json({ newPerson})
+    res.json({'username' : newPerson.username , '_id' : newPerson._id})
   });
 });
 
