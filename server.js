@@ -50,7 +50,6 @@ app.post('/api/users', (req, res) => {
   newPerson.save((err, data) => {
     res.json({ "username": data.username, "_id": data.id })
   });
-  // res.json({"response": req.body.username});
 });
 
 // You can make a GET request to /api/users to get an array of all users. 
@@ -59,7 +58,6 @@ app.post('/api/users', (req, res) => {
 app.get('/api/users', (req, res) => {
   Person.find({}, '_id, username').exec(function (err, users) {
     console.log('users : ', users);
-    // console.log('err', err);
     res.json(users);
   });
 });
@@ -86,6 +84,10 @@ app.post('/api/users/:_id/exercises', (req, res) => {
 // of any user. The returned response will be the user object 
 // with a log array of all the exercises added. Each log item has the description, 
 // duration, and date properties
+
+// A request to a user's log (/api/users/:_id/logs) returns an object with a 
+// count property representing the number of exercises returned.
+
 app.get('/api/users/:_id/logs', (req, res) => {
   Person.findById(req.params._id, (err, docs) => {
     console.log("Result : ", docs.log);
@@ -93,11 +95,13 @@ app.get('/api/users/:_id/logs', (req, res) => {
   })
 
 });
+
 //Remove
 
 app.get('/api/users/:_id/86', (req, res) => {
   Person.findByIdAndRemove(req.params._id, req.body, (err, data) => {
     !err ? console.log("Deleted!") : console.log(err);
+    res.json({'Following User has been deleted' : req.params._id})
   })
 });
 
