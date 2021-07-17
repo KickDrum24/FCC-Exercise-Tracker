@@ -90,7 +90,7 @@ app.post('/api/users/:_id/exercises', (req, res) => {
 
 app.get('/api/users/:_id/logs', (req, res) => {
   Person.findById(req.params._id, (err, docs) => {
-    console.log("Result : ", docs.log);
+    // console.log("Result : ", docs.log);
     res.json(docs.log);
   })
 
