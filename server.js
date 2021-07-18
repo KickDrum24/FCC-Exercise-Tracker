@@ -77,7 +77,9 @@ app.post('/api/users/:_id/exercises', (req, res) => {
   })
 
   Person.findByIdAndUpdate(req.params._id, {$push : {log : newSession}}, {new : true}, function (err, person) {
-    res.json({person})
+    res.json({'_id' : req.params._id, 'username' : person.username, "description": req.body.description, 
+    'duration': parseFloat(req.body.duration),
+    'date': day})
   });
 });
 
