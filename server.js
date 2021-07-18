@@ -69,6 +69,7 @@ app.get('/api/users', (req, res) => {
 app.post('/api/users/:_id/exercises', (req, res) => {
   var day; 
   req.body.date === "" ? day = new Date().toISOString().substring(0,10) : day = req.body.date
+  day=new Date(day).toDateString();
   let newSession = new Session({
     "description": req.body.description, 
     'duration': parseFloat(req.body.duration),
