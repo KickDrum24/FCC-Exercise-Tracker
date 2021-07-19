@@ -102,9 +102,9 @@ app.get('/api/users/:_id/logs', (req, res) => {
   Person.findById(req.params._id, (err, docs) => {
     if (req.query.limit) {
       var smallLog = docs.log.slice(0, req.query.limit);
-      res.json({ '_id': docs._id, 'username': docs.username, smallLog })
+      res.json({ '_id': docs._id, 'username': docs.username, 'log' : smallLog })
     } else if (req.query.from || req.query.to){
-      //set and format dates
+      //set and format default dates
       let fromDate = new Date(0);
       let toDate = new Date();
 
@@ -123,7 +123,7 @@ app.get('/api/users/:_id/logs', (req, res) => {
         let sessionDate = new Date(session.date).getTime();
         return sessionDate >= fromDate && sessionDate <= toDate;
       })
-      res.json({ '_id': docs._id, 'username': docs.username, filtLog })
+      res.json({ '_id': docs._id, 'username': docs.username, 'log' : filtLog })
     }else{
       // console.log(docs.log.slice(0,2))
       res.json({  '_id': docs._id, 'username': docs.username, "log" :docs.log, 'count': docs.log.length });
@@ -132,7 +132,7 @@ app.get('/api/users/:_id/logs', (req, res) => {
 
 });
 
-//Remove
+//Remove user object
 
 app.get('/api/users/:_id/86', (req, res) => {
   Person.findByIdAndRemove(req.params._id, req.body, (err, data) => {
