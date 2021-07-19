@@ -126,7 +126,7 @@ app.get('/api/users/:_id/logs', (req, res) => {
       res.json({ '_id': docs._id, 'username': docs.username, filtLog })
     }else{
       // console.log(docs.log.slice(0,2))
-      res.json({ docs, 'count': docs.log.length });
+      res.json({  '_id': docs._id, 'username': docs.username, "log" :docs.log, 'count': docs.log.length });
     }
   })
 
