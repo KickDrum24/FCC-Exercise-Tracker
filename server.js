@@ -58,7 +58,6 @@ app.post('/api/users', (req, res) => {
 
 app.get('/api/users', (req, res) => {
   Person.find({}, '_id, username').exec(function (err, users) {
-    console.log('users : ', users);
     res.json(users);
   });
 });
@@ -125,14 +124,13 @@ app.get('/api/users/:_id/logs', (req, res) => {
       })
       res.json({ '_id': docs._id, 'username': docs.username, 'log' : filtLog })
     }else{
-      // console.log(docs.log.slice(0,2))
       res.json({  '_id': docs._id, 'username': docs.username, "log" :docs.log, 'count': docs.log.length });
     }
   })
 
 });
 
-//Remove user object
+//Remove user object from mongo
 
 app.get('/api/users/:_id/86', (req, res) => {
   Person.findByIdAndRemove(req.params._id, req.body, (err, data) => {
