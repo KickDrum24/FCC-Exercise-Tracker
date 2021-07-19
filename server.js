@@ -1,9 +1,10 @@
+//setup
+
 const express = require('express')
 const app = express()
 const bodyParser = require('body-parser') // middleware
 const cors = require('cors')
 require('dotenv').config()
-// const mongoose = require('mongoose');
 let mongoose;
 try {
   mongoose = require("mongoose");
@@ -48,7 +49,7 @@ app.get('/', (req, res) => {
 app.post('/api/users', (req, res) => {
   const newPerson = new Person({ username: req.body.username });
   newPerson.save((err, data) => {
-    res.json({'username' : newPerson.username , '_id' : newPerson._id})
+    res.json({ 'username': newPerson.username, '_id': newPerson._id })
   });
 });
 
@@ -67,19 +68,21 @@ app.get('/api/users', (req, res) => {
 // The response returned will be the user object with the exercise fields added.
 
 app.post('/api/users/:_id/exercises', (req, res) => {
-  var day; 
-  req.body.date === "" ? day = new Date().toISOString().substring(0,10) : day = req.body.date
-  day=new Date(day).toDateString();
+  var day;
+  req.body.date === "" ? day = new Date().toISOString().substring(0, 10) : day = req.body.date
+  day = new Date(day).toDateString();
   let newSession = new Session({
-    "description": req.body.description, 
+    "description": req.body.description,
     'duration': parseFloat(req.body.duration),
     'date': day
   })
 
-  Person.findByIdAndUpdate(req.params._id, {$push : {log : newSession}}, {new : true}, function (err, person) {
-    res.json({'_id' : req.params._id, 'username' : person.username, "description": req.body.description, 
-    'duration': parseFloat(req.body.duration),
-    'date': day})
+  Person.findByIdAndUpdate(req.params._id, { $push: { log: newSession } }, { new: true }, function (err, person) {
+    res.json({
+      '_id': req.params._id, 'username': person.username, "description": req.body.description,
+      'duration': parseFloat(req.body.duration),
+      'date': day
+    })
   });
 });
 
@@ -91,10 +94,40 @@ app.post('/api/users/:_id/exercises', (req, res) => {
 // A request to a user's log (/api/users/:_id/logs) returns an object with a 
 // count property representing the number of exercises returned.
 
+// You can add from, to and limit parameters to a /api/users/:_id/logs request to 
+// retrieve part of the log of any user. from and to are dates in yyyy-mm-dd format. 
+// limit is an integer of how many logs to send back.
+
 app.get('/api/users/:_id/logs', (req, res) => {
   Person.findById(req.params._id, (err, docs) => {
-    // console.log("Result : ", docs.log);
-    res.json(docs);
+    if (req.query.limit) {
+      var smallLog = docs.log.slice(0, req.query.limit);
+      res.json({ '_id': docs._id, 'username': docs.username, smallLog })
+    } else if (req.query.from || req.query.to){
+      //set and format dates
+      let fromDate = new Date(0);
+      let toDate = new Date();
+
+      if(req.query.from){
+        fromDate = new Date(req.query.from)
+      }
+      if(req.query.to){
+        toDate = new Date(req.query.to)
+      }
+      //convert dates to UNIX time stamps
+      fromDate = fromDate.getTime();
+      toDate = toDate.getTime();
+      //filter log
+      var filtLog = docs.log.filter((session)=>{
+        //convert session dates to UNIX time stamps
+        let sessionDate = new Date(session.date).getTime();
+        return sessionDate >= fromDate && sessionDate <= toDate;
+      })
+      res.json({ '_id': docs._id, 'username': docs.username, filtLog })
+    }else{
+      // console.log(docs.log.slice(0,2))
+      res.json({ docs, 'count': docs.log.length });
+    }
   })
 
 });
@@ -104,7 +137,7 @@ app.get('/api/users/:_id/logs', (req, res) => {
 app.get('/api/users/:_id/86', (req, res) => {
   Person.findByIdAndRemove(req.params._id, req.body, (err, data) => {
     !err ? console.log("Deleted!") : console.log(err);
-    res.json({'Following User has been deleted' : req.params._id})
+    res.json({ 'Following User has been deleted': req.params._id })
   })
 });
 
