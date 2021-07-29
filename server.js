@@ -130,12 +130,12 @@ app.get('/api/users/:_id/logs', (req, res) => {
 
 });
 
-//Remove user object from mongo
+//Remove all users
 
-app.get('/api/users/:_id/86', (req, res) => {
-  Person.findByIdAndRemove(req.params._id, req.body, (err, data) => {
-    !err ? console.log("Deleted!") : console.log(err);
-    res.json({ 'Following User has been deleted': req.params._id })
+app.get('/api/users/86', (req, res) => {
+  Person.deleteMany({ username: { $exists: true } }, req.body, (err, data) => {
+    !err ? console.log("Deleted Many!") : console.log(err);
+    res.json({ 'Objects with usernames have been deleted': null })
   })
 });
 
